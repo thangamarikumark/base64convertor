@@ -1,0 +1,162 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Base64 Convertor API (Baseline)",
+    "version": "0.0.1-SNAPSHOT",
+    "description": "Hand-authored OpenAPI baseline. No OpenAPI/Swagger generator (e.g. springdoc-openapi) is present in pom.xml and no /v3/api-docs endpoint exists in this application, so this document was manually authored from the controller source and live baseline captures in docs/regression-baseline/, rather than exported from a running generator. Treat this as a snapshot for regression comparison, not a live contract."
+  },
+  "servers": [{ "url": "http://localhost:8080" }],
+  "paths": {
+    "/api/files/checksum": {
+      "post": {
+        "summary": "CRC32 checksum + nonce",
+        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "message": {"type":"string"}, "secretKey": {"type":"string"} } } } } },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "checksum": {"type":"string"}, "nonce": {"type":"string"} } } } } },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/api/files/checksumgenerator": {
+      "post": {
+        "summary": "CRC32 checksum + nonce (query params)",
+        "parameters": [
+          {"name":"message","in":"query","required":true,"schema":{"type":"string"}},
+          {"name":"secretKey","in":"query","required":true,"schema":{"type":"string"}}
+        ],
+        "responses": { "200": { "description": "OK" }, "400": { "description": "Bad Request" } }
+      }
+    },
+    "/api/files/convert": {
+      "post": {
+        "summary": "Batch URL to Base64 conversion",
+        "requestBody": { "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/FileConvertRequest" } } } } },
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/FileConvertResponse" } } } } }, "400": { "description": "Bad Request" } }
+      }
+    },
+    "/api/files/convert/single": {
+      "post": {
+        "summary": "Single URL to Base64 conversion",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FileConvertRequest" } } } },
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FileConvertResponse" } } } } }
+      }
+    },
+    "/api/files/status/{processingId}": {
+      "get": {
+        "summary": "Poll async conversion job status",
+        "parameters": [{"name":"processingId","in":"path","required":true,"schema":{"type":"string"}}],
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FileConvertResponse" } } } }, "404": { "description": "Not Found" } }
+      }
+    },
+    "/api/files/pdf/send": {
+      "post": {
+        "summary": "Fetch file and forward to target chat/message API",
+        "requestBody": { "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PdfRequest" } } } } },
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PdfResponse" } } } } } }
+      }
+    },
+    "/api/files/pdf/convert/base64": {
+      "post": {
+        "summary": "Fetch file, return Base64",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PdfBase64Request" } } } },
+        "responses": { "200": { "description": "OK" }, "502": { "description": "Bad Gateway" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/api/files/pdf/convert/base64dynamic": {
+      "post": {
+        "summary": "Flexible fetch (any method/headers) with validation",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PdfBase64RequestDynamic" } } } },
+        "responses": { "200": { "description": "OK (status field in body may be SUCCESS/FAILED/FILE_TOO_LARGE)" } }
+      }
+    },
+    "/api/files/pdf/single": {
+      "post": {
+        "summary": "Fetch + optional forward, single item",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PdfRequest" } } } },
+        "responses": { "200": { "description": "OK" }, "502": { "description": "Bad Gateway" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/api/files/pdf/protect": {
+      "post": {
+        "summary": "Password-protect an existing Base64 PDF",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PdfProtectRequest" } } } },
+        "responses": { "200": { "description": "OK" }, "400": { "description": "Bad Request" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/api/files/save-decoded": {
+      "post": {
+        "summary": "Decode Base64 to binary file + metadata",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Base64SaveRequest" } } } },
+        "responses": { "200": { "description": "OK" }, "400": { "description": "Bad Request" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/api/files/download-decoded/{fileName}": {
+      "get": {
+        "summary": "Download decoded binary file",
+        "parameters": [{"name":"fileName","in":"path","required":true,"schema":{"type":"string"}}],
+        "responses": { "200": { "description": "OK", "content": { "application/octet-stream": {} } }, "403": { "description": "Forbidden" }, "404": { "description": "Not Found" } }
+      }
+    },
+    "/api/files/metadata/{fileName}": {
+      "get": {
+        "summary": "Fetch metadata JSON for decoded file",
+        "parameters": [{"name":"fileName","in":"path","required":true,"schema":{"type":"string"}}],
+        "responses": { "200": { "description": "OK" }, "403": { "description": "Forbidden" }, "404": { "description": "Not Found" } }
+      }
+    },
+    "/api/files/callback": {
+      "post": {
+        "summary": "Save raw Base64 text, return download link",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Base64SaveRequest" } } } },
+        "responses": { "200": { "description": "OK" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/api/files/list": {
+      "get": { "summary": "List stored .b64 files", "responses": { "200": { "description": "OK" } } }
+    },
+    "/api/files/download/{fileName}": {
+      "get": {
+        "summary": "Download .b64 text file as attachment",
+        "parameters": [{"name":"fileName","in":"path","required":true,"schema":{"type":"string"}}],
+        "responses": { "200": { "description": "OK", "content": { "text/plain": {} } }, "403": { "description": "Forbidden" }, "404": { "description": "Not Found" } }
+      }
+    },
+    "/api/files/content/{fileName}": {
+      "get": {
+        "summary": "Return .b64 content inline",
+        "parameters": [{"name":"fileName","in":"path","required":true,"schema":{"type":"string"}}],
+        "responses": { "200": { "description": "OK", "content": { "text/plain": {} } }, "403": { "description": "Forbidden" }, "404": { "description": "Not Found" } }
+      }
+    },
+    "/api/files/{fileName}": {
+      "delete": {
+        "summary": "Delete a .b64 file",
+        "parameters": [{"name":"fileName","in":"path","required":true,"schema":{"type":"string"}}],
+        "responses": { "200": { "description": "OK" }, "403": { "description": "Forbidden" }, "404": { "description": "Not Found" } }
+      }
+    },
+    "/api/test/ping": {
+      "get": { "summary": "Liveness probe", "responses": { "200": { "description": "OK", "content": { "text/plain": { "schema": { "type": "string", "example": "Pong! Service is alive." } } } } } }
+    },
+    "/api/test/echo": {
+      "post": {
+        "summary": "Echo request body",
+        "requestBody": { "content": { "text/plain": { "schema": { "type": "string" } } } },
+        "responses": { "200": { "description": "OK", "content": { "text/plain": {} } } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FileConvertRequest": { "type": "object", "properties": { "url": {"type":"string"}, "fileName": {"type":"string"}, "caption": {"type":"string"}, "mimeType": {"type":"string"}, "type": {"type":"string"} }, "required": ["url","mimeType","type"] },
+      "FileConvertResponse": { "type": "object", "properties": { "processingId": {"type":"string","nullable":true}, "fileName": {"type":"string"}, "mimeType": {"type":"string"}, "type": {"type":"string"}, "base64Data": {"type":"string","nullable":true}, "success": {"type":"boolean"}, "message": {"type":"string"} } },
+      "PdfRequest": { "type": "object", "properties": { "url": {"type":"string"}, "cookie": {"type":"string"}, "payload": {"type":"string"}, "target_url": {"type":"string"}, "target_auth": {"type":"string"}, "message": {"type":"object"}, "metaData": {"type":"object"} } },
+      "PdfResponse": { "type": "object", "properties": { "fileName": {"type":"string"}, "status": {"type":"string"}, "base64": {"type":"string","nullable":true}, "mimeType": {"type":"string","nullable":true}, "size": {"type":"integer"} } },
+      "PdfBase64Request": { "type": "object", "properties": { "url": {"type":"string"}, "cookie": {"type":"string"}, "payload": {"type":"string"} }, "required": ["url"] },
+      "PdfBase64RequestDynamic": { "type": "object", "properties": { "url": {"type":"string"}, "cookie": {"type":"string"}, "httpMethod": {"type":"string"}, "payload": {"type":"object"}, "authorization": {"type":"string"} }, "required": ["url"] },
+      "PdfProtectRequest": { "type": "object", "properties": { "name": {"type":"string"}, "dob": {"type":"string"}, "base64_docContent": {"type":"string"}, "fileName": {"type":"string"} }, "required": ["name","dob","base64_docContent"] },
+      "PdfProtectResponse": { "type": "object", "properties": { "success": {"type":"boolean"}, "message": {"type":"string"}, "fileName": {"type":"string"}, "base64ProtectedPdf": {"type":"string"}, "downloadLink": {"type":"string"}, "metadataFile": {"type":"string"}, "fileSize": {"type":"string"}, "fileSizeBytes": {"type":"integer"}, "savedAt": {"type":"string"} } },
+      "Base64SaveRequest": { "type": "object", "properties": { "base64Content": {"type":"string"}, "fileName": {"type":"string"} }, "required": ["base64Content","fileName"] }
+    }
+  }
+}

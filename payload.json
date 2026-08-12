@@ -1,0 +1,32 @@
+[
+  {
+    "url": "https://pg.tnebnet.org/wap/TNPD/ereceiptpdfWapp",
+    "cookie": "gEcjOKJs8qYnrQj-cNZuquVh",
+    "payload": "PGWTNE|S46THUYQgzhFSTYVRJXDZhhzbEgqeWuyYKf9HOiGBkWlpgrJOFkjRTgEhgo64pjzvRqvEezcY3+oKSX9JGJU0A==",
+    "target_url": "https://rcmapi.instaalerts.zone/services/rcm/sendMessage",
+    "target_contentType": "application/json",
+    "target_auth": "Bearer q4ynVHA2s4d3unfWY2ujrQ==",
+    "metaData": { "version": "v1.0.9" },
+    "message": {
+      "channel": "WABA",
+      "content": {
+        "type": "ATTACHMENT",
+        "attachment": {
+          "type": "document",
+          "caption": "Dear Customer, To view your password protected e-statement, the password is your customer ID.",
+          "fileName": "sample.pdf",
+          "mimeType": "application/pdf",
+          "attachmentData": null
+        }
+      },
+      "recipient": {
+        "to": "919972073053",
+        "recipient_type": "individual",
+        "reference": {}
+      },
+      "sender": { "from": "918657878920" },
+      "preferences": { "webHookDNId": "1001" }
+    }
+  }
+]
+

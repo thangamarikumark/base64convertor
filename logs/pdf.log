@@ -1,0 +1,2 @@
+2026-08-07 16:34:00.279 [http-nio-8080-exec-7] [5db440d8-988f-46ea-8778-631c0230a44f] INFO  com.twixor.base64convertor.pdf.service.BandhanProtectServiceImpl - Bandhan statement PDF protected
+2026-08-07 16:34:00.286 [http-nio-8080-exec-7] [5db440d8-988f-46ea-8778-631c0230a44f] INFO  com.twixor.base64convertor.pdf.service.BandhanProtectServiceImpl - Bandhan protect response generated

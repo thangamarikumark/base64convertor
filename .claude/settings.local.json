@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker volume *)",
+      "Bash(CONTAINER_NAME=b64-startup-test2 HOST_PORT=18092 FILE_CACHE_PATH=/data/cache BASE64_OUTPUT_PATH=/data/output LOG_DIR=/data/logs ./deploy/docker_startup.sh)",
+      "Bash(curl -s -w '\\\\n[%{http_code}]\\\\n' http://localhost:18092/api/test/ping)",
+      "Bash(docker exec *)",
+      "Bash(docker rm *)"
+    ]
+  }
+}

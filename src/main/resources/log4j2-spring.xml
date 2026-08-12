@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <!-- LOG_DIR: absolute, environment-variable-driven log directory. Resolved via
+         Log4j2's own native env lookup (not Spring's), because Log4j2 initializes
+         before the Spring ApplicationContext exists — RuntimeDirectoryBootstrap
+         (called from main(), before SpringApplication.run) creates this same
+         directory using the identical default, so it is guaranteed to exist by
+         the time these appenders open their files. -->
+    <Properties>
+        <Property name="LOG_DIR">${env:LOG_DIR:-/var/log/base64convertor}</Property>
+    </Properties>
+
+    <!-- ======================== Appenders ======================== -->
+    <Appenders>
+        <!-- Console Appender -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] [%X{requestId}] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <!-- PDF logs -->
+        <RollingFile name="PdfFile" fileName="${LOG_DIR}/pdf.log"
+                     filePattern="${LOG_DIR}/archive/pdf-%d{yyyy-MM-dd-HH-mm}.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] [%X{requestId}] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <!-- HTTP logs -->
+        <RollingFile name="HttpFile" fileName="${LOG_DIR}/http.log"
+                     filePattern="${LOG_DIR}/archive/http-%d{yyyy-MM-dd-HH-mm}.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] [%X{requestId}] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <!-- ERROR logs -->
+        <RollingFile name="ErrorFile" fileName="${LOG_DIR}/error.log"
+                     filePattern="${LOG_DIR}/archive/error-%d{yyyy-MM-dd-HH-mm}.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] [%X{requestId}] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+    </Appenders>
+
+    <!-- ======================== Loggers ======================== -->
+
+    <Loggers>
+        <!-- Root logger -->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+
+        <!-- PDF Logger -->
+        <Logger name="com.twixor.base64convertor.pdf" level="INFO" additivity="false">
+            <AppenderRef ref="PdfFile"/>
+        </Logger>
+
+        <!-- HTTP Logger -->
+        <Logger name="com.twixor.base64convertor.http" level="INFO" additivity="false">
+            <AppenderRef ref="HttpFile"/>
+        </Logger>
+
+        <!-- ERROR Logger -->
+        <Logger name="com.twixor.base64convertor.error" level="ERROR" additivity="false">
+            <AppenderRef ref="ErrorFile"/>
+        </Logger>
+    </Loggers>
+
+</Configuration>

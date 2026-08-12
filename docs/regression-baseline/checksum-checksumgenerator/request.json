@@ -1,0 +1,1 @@
+{"method":"POST","path":"/api/files/checksumgenerator","query":{"message":"hello","secretKey":"secret123"},"body":"none (query params)"}

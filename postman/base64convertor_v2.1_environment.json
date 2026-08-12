@@ -1,0 +1,74 @@
+{
+  "id": "9c2be8bb-4763-49d6-a5a2-4e3cfe23d4dd",
+  "name": "Base64Convertor - Local",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "managementBaseUrl",
+      "value": "http://localhost:9090",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "requestId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "apiVersion",
+      "value": "1.0.0",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "samplePdfUrl",
+      "value": "https://raw.githubusercontent.com/octocat/Hello-World/master/README",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "sampleImageUrl",
+      "value": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Camponotus_flavomarginatus_ant.jpg",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "targetUrl",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "Downstream 'target' system for /pdf/send and /pdf/single. SECURITY: this codebase does not currently allowlist-validate this URL (see Production Readiness Review, P0-1) \u2014 never point it at an untrusted host."
+    },
+    {
+      "key": "targetAuth",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "cookieValue",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "sampleB64FileName",
+      "value": "REPLACE_WITH_A_REAL_.b64_FILENAME_FROM_/list",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "sampleDecodedFileName",
+      "value": "REPLACE_WITH_A_REAL_FILENAME_FROM_/save-decoded_RESPONSE",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

@@ -1,0 +1,188 @@
+{
+  "info": {
+    "name": "PDF Protect v2 (Base64 -> Downloadable PDF)",
+    "description": "POST /api/files/pdf/protect \u2014 replaces the earlier name/dob-derived-password contract at this same URL. Success returns a binary PDF attachment; failure returns a JSON error body.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "sampleBase64Pdf",
+      "value": "JVBERi0xLjcKJfbk/N8KMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA1OTUgODQyXQo+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDQKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE5MAolJUVPRgo="
+    }
+  ],
+  "item": [
+    {
+      "name": "Scenario 1 - No password (passthrough)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"{{sampleBase64Pdf}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/files/convert/pdf/protect"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Content-Type is application/pdf', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));",
+              "pm.test('Content-Disposition present', () => pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scenario 2 - Password protected",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passwordProtected\": true,\n  \"password\": \"Welcome@123\",\n  \"base64DocContent\": \"{{sampleBase64Pdf}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/files/convert/pdf/protect"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Content-Type is application/pdf', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error - Missing password when passwordProtected=true",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passwordProtected\": true,\n  \"base64DocContent\": \"{{sampleBase64Pdf}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/files/convert/pdf/protect"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+              "pm.test('success=false', () => pm.expect(pm.response.json().success).to.eql(false));",
+              "pm.test('message mentions mandatory password', () => pm.expect(pm.response.json().message).to.include('mandatory'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error - Invalid Base64",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"not-valid-base64-!!!\"\n}"
+        },
+        "url": "{{baseUrl}}/api/files/convert/pdf/protect"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+              "pm.test('success=false', () => pm.expect(pm.response.json().success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error - Valid Base64 but not a PDF",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"aGVsbG8gd29ybGQgbm90IGEgcGRm\"\n}"
+        },
+        "url": "{{baseUrl}}/api/files/convert/pdf/protect"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+              "pm.test('message mentions PDF', () => pm.expect(pm.response.json().message).to.include('PDF'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error - Missing required fields (bean validation)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": "{{baseUrl}}/api/files/convert/pdf/protect"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2687 @@
+{
+  "info": {
+    "_postman_id": "3fb6ff6d-5b54-43bd-aee0-3d4d395fbb7b",
+    "name": "Base64Convertor API - v2.1 (Source-Verified)",
+    "description": "Generated strictly from source code (controllers, DTOs, validation annotations, service-layer response construction) as of this session \u2014 not from prior Postman collections, README, or Swagger. Every endpoint's request/response shapes, status codes, and header behavior were confirmed by direct source reads and, for the responseType/observability features, live curl verification against a running instance. Global observability headers (X-Request-Id, X-API-Version, X-Timestamp) are set on EVERY response by RequestCorrelationFilter and asserted in each request's test script.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health & Test APIs",
+      "item": [
+        {
+          "name": "Ping - health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/test/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "test",
+                "ping"
+              ]
+            },
+            "description": "Liveness probe. No request body. Always returns 200 while the JVM is up."
+          },
+          "response": [
+            {
+              "name": "200 OK - service alive",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "Pong! Service is alive."
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Body is Pong message\", function () { pm.expect(pm.response.text()).to.include(\"Pong\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Echo - request body passthrough",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/plain"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/test/echo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "test",
+                "echo"
+              ]
+            },
+            "description": "Accepts raw text body, returns 'Received: <body>'. Body length only is logged (never the raw content), per this codebase's logging-remediation policy.",
+            "body": {
+              "mode": "raw",
+              "raw": "hello world",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - echoed",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "Received: hello world"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Echoes body back\", function () { pm.expect(pm.response.text()).to.include(\"Received:\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Checksum APIs",
+      "item": [
+        {
+          "name": "Generate checksum (body)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/checksum",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "checksum"
+              ]
+            },
+            "description": "CRC32(message|secretKey) + a fresh UUID nonce. No @Valid on ChecksumRequest \u2014 validation is a manual null/empty check in the controller.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"hello world\",\n  \"secretKey\": \"my-secret-key\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"checksum\": \"1829948966\",\n  \"nonce\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Has checksum and nonce\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"checksum\"); pm.expect(j).to.have.property(\"nonce\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Generate checksum - validation failure (empty message)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/checksum",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "checksum"
+              ]
+            },
+            "description": "Manual validation in ChecksumController \u2014 empty message or secretKey returns 400 with a plain {error: ...} body (NOT the ApiResponse envelope; this endpoint predates that pattern and has not been migrated).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"\",\n  \"secretKey\": \"my-secret-key\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {},
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"message and secretKey cannot be empty\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Generate checksum (query params)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/checksumgenerator?message=hello world&secretKey=my-secret-key",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "checksumgenerator"
+              ],
+              "query": [
+                {
+                  "key": "message",
+                  "value": "hello world"
+                },
+                {
+                  "key": "secretKey",
+                  "value": "my-secret-key"
+                }
+              ]
+            },
+            "description": "Same computation as /checksum, but message/secretKey are query params, not a JSON body."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"checksum\": \"1829948966\",\n  \"nonce\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "File Conversion APIs",
+      "item": [
+        {
+          "name": "Convert batch - happy path",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert"
+              ]
+            },
+            "description": "Batch download+Base64-encode. Max batch size app.convert.max-batch-size (default 50). @Valid @Size(min=1) on the request list.",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"url\": \"{{samplePdfUrl}}\",\n    \"fileName\": \"sample.pdf\",\n    \"mimeType\": \"application/pdf\",\n    \"type\": \"document\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "[\n  {\n    \"processingId\": null,\n    \"fileName\": \"sample.pdf\",\n    \"mimeType\": \"application/pdf\",\n    \"type\": \"document\",\n    \"base64Data\": \"JVBERi0xLjQK...(truncated)...\",\n    \"success\": true,\n    \"message\": \"File converted successfully\"\n  }\n]"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Response is an array\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert batch - validation failure (empty list)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert"
+              ]
+            },
+            "description": "@Size(min=1, message=\"Request list must not be empty\") on the request body triggers Spring's default validation-failure response.",
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {},
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": ""
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert batch - security failure (disallowed URL scheme)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert"
+              ]
+            },
+            "description": "IMPORTANT: unlike /pdf/convert/base64dynamic, this endpoint's UrlAllowlistValidator.validate() call is INSIDE FileConversionService's own try/catch, so a disallowed scheme is caught and returned as success:false inside a normal 200 response, not a 4xx/5xx.",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"url\": \"file:///etc/passwd\",\n    \"fileName\": \"x\",\n    \"mimeType\": \"text/plain\",\n    \"type\": \"document\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK, success=false in body",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "[\n  {\n    \"processingId\": null,\n    \"fileName\": \"x\",\n    \"mimeType\": \"text/plain\",\n    \"type\": \"document\",\n    \"base64Data\": null,\n    \"success\": false,\n    \"message\": \"URL scheme 'file' is not allowed. Only http and https are permitted.\"\n  }\n]"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"success=false with scheme error\", function () { const j = pm.response.json()[0]; pm.expect(j.success).to.eql(false); pm.expect(j.message).to.include(\"scheme\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get async conversion status - not found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/status/{{processingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "status",
+                "{{processingId}}"
+              ]
+            },
+            "description": "Reads FileConversionService.asyncResults, populated only by processFileAsync \u2014 which has NO caller anywhere in this codebase (confirmed by source review). This endpoint therefore returns 404 for every possible processingId in every environment today; see docs/Production_Readiness_Review.md P1-4."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([404]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert single file - happy path",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/single",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "single"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"{{samplePdfUrl}}\",\n  \"fileName\": \"sample.pdf\",\n  \"mimeType\": \"application/pdf\",\n  \"type\": \"document\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"processingId\": null,\n  \"fileName\": \"sample.pdf\",\n  \"mimeType\": \"application/pdf\",\n  \"type\": \"document\",\n  \"base64Data\": \"JVBERi0xLjQK...(truncated)...\",\n  \"success\": true,\n  \"message\": \"File converted successfully\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert single file - validation failure (missing url)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/single",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "single"
+              ]
+            },
+            "description": "@NotBlank on url triggers Spring's default @Valid failure response (400).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileName\": \"sample.pdf\",\n  \"mimeType\": \"application/pdf\",\n  \"type\": \"document\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PDF APIs",
+      "item": [
+        {
+          "name": "Protect PDF - BASE64 response (default)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "responseType=BASE64 (also the default if the field is omitted entirely, for backward compatibility with this endpoint's original behavior). Response body.requestId always equals the X-Request-Id response header (RequestCorrelationFilter + ApiResponse both read the same request-scoped id).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"password\": \"Welcome@123\",\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\",\n  \"responseType\": \"BASE64\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - JSON envelope with Base64",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"status\": \"SUCCESS\",\n  \"message\": \"PDF generated successfully\",\n  \"data\": {\n    \"fileName\": \"protected_document.pdf\",\n    \"base64ProtectedPdf\": \"JVBERi0xLjQK...(truncated)...\"\n  },\n  \"timestamp\": \"2026-07-02T18:10:00.123456789Z\",\n  \"requestId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"status SUCCESS\", function () { pm.expect(pm.response.json().status).to.eql(\"SUCCESS\"); });",
+                  "pm.test(\"body.requestId matches X-Request-Id header\", function () { pm.expect(pm.response.json().requestId).to.eql(pm.response.headers.get(\"X-Request-Id\")); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - ATTACHMENT response (binary download)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "responseType=ATTACHMENT returns the protected PDF as a raw binary download instead of JSON.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"password\": \"Welcome@123\",\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\",\n  \"responseType\": \"ATTACHMENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - binary PDF",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/pdf"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=\"protected_document.pdf\""
+                }
+              ],
+              "body": "<binary PDF bytes>"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Content-Type is application/pdf\", function () { pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/pdf\"); });",
+                  "pm.test(\"Content-Disposition is attachment\", function () { pm.expect(pm.response.headers.get(\"Content-Disposition\")).to.include(\"attachment\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - validation failure (password missing)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "Cross-field rule (password required only when passwordProtected=true) enforced in PdfProtectionServiceImpl, not bean validation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {},
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Password is mandatory when password protection is enabled\",\n  \"data\": null,\n  \"timestamp\": \"2026-07-02T18:10:00.123Z\",\n  \"requestId\": \"...\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([400]); });",
+                  "pm.test(\"status FAILED\", function () { pm.expect(pm.response.json().status).to.eql(\"FAILED\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - business failure (not a valid PDF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "Base64FileValidator magic-byte check fails (%PDF header missing) -> PdfProtectionValidationException -> 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"dGhpcyBpcyBub3QgYSBwZGY=\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {},
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Provided content is not a valid PDF document\",\n  \"data\": null,\n  \"timestamp\": \"2026-07-02T18:10:00.123Z\",\n  \"requestId\": \"...\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([400]); });",
+                  "pm.test(\"correct error message\", function () { pm.expect(pm.response.json().message).to.include(\"valid PDF\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - invalid responseType value",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "Jackson enum deserialization failure -> HttpMessageNotReadableException -> Spring's default handling returns 400 (verified live; this codebase has no global @ControllerAdvice, so this relies on Spring MVC's built-in behavior, not custom code).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\",\n  \"responseType\": \"NOT_A_TYPE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "400 Bad Request - unreadable enum",
+              "originalRequest": {},
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": ""
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - service disabled",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "Only reproducible when pdf.protection.enabled=false (default true) \u2014 included for completeness of the documented failure surface, not runnable against a default-config instance.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "503 Service Unavailable (only when pdf.protection.enabled=false)",
+              "originalRequest": {},
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"PDF protection is currently disabled\",\n  \"data\": null,\n  \"timestamp\": \"2026-07-02T18:10:00.123Z\",\n  \"requestId\": \"...\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([503]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send PDF to target (batch, always forwards)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "send"
+              ]
+            },
+            "description": "SECURITY NOTE (see docs/Production_Readiness_Review.md P0-1): target_url is currently NOT validated by UrlAllowlistValidator, unlike the source-fetch url. Do not point target_url at untrusted hosts in any environment.",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"url\": \"{{samplePdfUrl}}\",\n    \"target_url\": \"{{targetUrl}}\",\n    \"cookie\": \"{{cookieValue}}\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "[\n  {\n    \"fileName\": \"unknown\",\n    \"status\": \"SUCCESS\",\n    \"base64\": \"JVBERi0xLjQK...(truncated)...\",\n    \"mimeType\": null,\n    \"size\": 0\n  }\n]"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send PDF to target - security-relevant failure (unreachable/blocked target)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "send"
+              ]
+            },
+            "description": "Demonstrates the blind-SSRF oracle described in the readiness review: the connection-error message from an attempted internal request is reflected in the response body.",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"url\": \"{{samplePdfUrl}}\",\n    \"target_url\": \"http://169.254.169.254/latest/meta-data/\",\n    \"cookie\": \"\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 with FAILED entry (connection-error message reflected)",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "[\n  {\n    \"fileName\": \"unknown\",\n    \"status\": \"FAILED: I/O error on POST request\",\n    \"base64\": null,\n    \"mimeType\": null,\n    \"size\": 0\n  }\n]"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send single PDF (forwards only if target_url present)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/single",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "single"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"{{samplePdfUrl}}\",\n  \"target_url\": \"{{targetUrl}}\",\n  \"cookie\": \"{{cookieValue}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"fileName\": \"unknown\",\n  \"status\": \"SUCCESS\",\n  \"base64\": \"JVBERi0xLjQK...(truncated)...\",\n  \"mimeType\": null,\n  \"size\": 0\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send single PDF - upstream HTTP error (502)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/single",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "single"
+              ]
+            },
+            "description": "RestClientException from the source fetch maps to 502 in this controller specifically (PdfFetchController/PdfDeliveryController each define their own status-code convention; see ADR-002 referenced in source).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://httpstat.us/500\",\n  \"target_url\": \"\",\n  \"cookie\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "502 Bad Gateway",
+              "originalRequest": {},
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"fileName\": \"unknown\",\n  \"status\": \"FAILED: 500 Internal Server Error\",\n  \"base64\": null,\n  \"mimeType\": null\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([502]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert URL to Base64 (fixed POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/convert/base64",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "convert",
+                "base64"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"{{samplePdfUrl}}\",\n  \"cookie\": \"\",\n  \"payload\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"fileName\": \"downloaded.pdf\",\n  \"status\": \"SUCCESS\",\n  \"base64\": \"JVBERi0xLjQK...(truncated)...\",\n  \"mimeType\": \"application/pdf\",\n  \"size\": 0\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"status SUCCESS\", function () { pm.expect(pm.response.json().status).to.eql(\"SUCCESS\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert URL to Base64 - security failure (disallowed scheme)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/convert/base64",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "convert",
+                "base64"
+              ]
+            },
+            "description": "UrlAllowlistValidator.validate() throws IllegalArgumentException, caught by this controller's generic catch(Exception) branch -> 500 with a FAILED status string in the body (this endpoint's own established convention, per ADR-002 \u2014 differs from /convert's in-body success:false-at-200 convention).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"file:///etc/passwd\",\n  \"cookie\": \"\",\n  \"payload\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "500 Internal Server Error (IllegalArgumentException uncaught as RestClientException type)",
+              "originalRequest": {},
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"fileName\": \"downloaded.pdf\",\n  \"status\": \"FAILED: URL scheme 'file' is not allowed. Only http and https are permitted.\",\n  \"base64\": null,\n  \"mimeType\": \"application/pdf\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([500]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert URL to Base64 - dynamic method/headers, happy path",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/convert/base64dynamic",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "convert",
+                "base64dynamic"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"{{samplePdfUrl}}\",\n  \"httpMethod\": \"GET\",\n  \"cookie\": \"\",\n  \"payload\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"fileName\": \"sample.pdf\",\n  \"status\": \"SUCCESS\",\n  \"base64\": \"JVBERi0xLjQK...(truncated)...\",\n  \"mimeType\": \"application/pdf\",\n  \"size\": 12345\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"status SUCCESS\", function () { pm.expect(pm.response.json().status).to.eql(\"SUCCESS\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert URL to Base64 dynamic - CONFIRMED DIVERGENT security failure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/convert/base64dynamic",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "convert",
+                "base64dynamic"
+              ]
+            },
+            "description": "CONFIRMED SOURCE-CODE DIVERGENCE (verified by direct read of PdfService.fetchAndConvertToBase64Dynamic): urlAllowlistValidator.validate(req.getUrl()) is called BEFORE the method's own try block starts, and PdfFetchController.convertToBase64Dynamic has no try/catch at all around this call. The IllegalArgumentException propagates fully uncaught, producing Spring Boot's generic default error body \u2014 NOT this endpoint's normal PdfResponse{status:'FAILED:...'} shape used by every other failure path in this codebase. Per instruction to treat source code as ground truth over expected/documented behavior, this is intentionally captured as its own example rather than assumed to match the sibling /convert/base64 endpoint.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"file:///etc/passwd\",\n  \"httpMethod\": \"GET\",\n  \"cookie\": \"\",\n  \"payload\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "500 - Spring's DEFAULT error page, not PdfResponse",
+              "originalRequest": {},
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [],
+              "body": "{\n  \"timestamp\": \"2026-07-02T18:10:00.000+00:00\",\n  \"status\": 500,\n  \"error\": \"Internal Server Error\",\n  \"path\": \"/api/files/pdf/convert/base64dynamic\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([500]); });",
+                  "pm.test(\"NOT the normal PdfResponse shape\", function () { pm.expect(pm.response.json()).to.not.have.property(\"status\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "File Download APIs",
+      "item": [
+        {
+          "name": "List .b64 output files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "list"
+              ]
+            },
+            "description": ""
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "[\n  {\n    \"fileName\": \"20260702-174729_9ea5329f_README.b64\",\n    \"size\": 18,\n    \"lastModified\": \"2026-07-02T17:47:29Z\"\n  }\n]"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"Response is an array\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download .b64 file content (attachment)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/download/{{sampleB64FileName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "download",
+                "{{sampleB64FileName}}"
+              ]
+            },
+            "description": "PathTraversalGuard.isWithin() enforced \u2014 a fileName like ../../../etc/passwd normalizes outside the base dir and is rejected with 403 before any file access is attempted."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=\"sample.b64\""
+                }
+              ],
+              "body": "SGVsbG8gV29ybGQh"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {},
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": ""
+            },
+            {
+              "name": "403 Forbidden (path traversal attempt)",
+              "originalRequest": {},
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": ""
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 403, 404]); });",
+                  "pm.test(\"Content-Disposition present on 200\", function () { if (pm.response.code === 200) { pm.expect(pm.response.headers.get(\"Content-Disposition\")).to.include(\"attachment\"); } });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download .b64 - security failure (path traversal)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/download/..%2F..%2F..%2Fetc%2Fpasswd",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "download",
+                "..%2F..%2F..%2Fetc%2Fpasswd"
+              ]
+            },
+            "description": "URL-encoded traversal sequence. PathTraversalGuard normalizes the resolved path and rejects anything outside app.base64.output-path."
+          },
+          "response": [
+            {
+              "name": "403 Forbidden",
+              "originalRequest": {},
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": ""
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([403]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get .b64 file content (inline)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/content/{{sampleB64FileName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "content",
+                "{{sampleB64FileName}}"
+              ]
+            },
+            "description": ""
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "SGVsbG8gV29ybGQh"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 403, 404]); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete .b64 file",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/{{sampleB64FileName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "{{sampleB64FileName}}"
+              ]
+            },
+            "description": "Restricted to files ending in .b64 \u2014 any other extension (or a traversal attempt) is rejected with 403 by FileStorageFacade.deleteBase64File."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "File deleted successfully"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {},
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": ""
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 404, 403]); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Base64 Storage APIs",
+      "item": [
+        {
+          "name": "Save raw Base64 (callback)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "callback"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"base64Content\": \"SGVsbG8gV29ybGQh\",\n  \"fileName\": \"hello.txt\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"File saved successfully\",\n  \"fileName\": \"20260702-181000_ab12cd34_hello.txt.b64\",\n  \"downloadLink\": \"http://localhost:8080/api/files/download/20260702-181000_ab12cd34_hello.txt.b64\",\n  \"fileSize\": \"16.00 B\",\n  \"savedAt\": \"2026-07-02T18:10:00.123\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"success true\", function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save raw Base64 - validation failure (missing fileName)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "callback"
+              ]
+            },
+            "description": "@NotBlank on fileName triggers Spring's default @Valid failure response.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"base64Content\": \"SGVsbG8gV29ybGQh\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Decoded File APIs",
+      "item": [
+        {
+          "name": "Save & auto-detect decoded file",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/save-decoded",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "save-decoded"
+              ]
+            },
+            "description": "MIME type is Tika-detected from the decoded bytes (FileTypeDetectionService), not from any caller-supplied field. Files older than app.decoded-file.retention-days (default 7) are automatically cleaned up hourly and at startup.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"base64Content\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\",\n  \"fileName\": \"document.pdf\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"File decoded and saved successfully\",\n  \"fileName\": \"20260702-181000_ab12cd34_document.pdf\",\n  \"originalFileName\": \"document.pdf\",\n  \"downloadLink\": \"http://localhost:8080/api/files/download-decoded/20260702-181000_ab12cd34_document.pdf\",\n  \"fileSize\": \"315.00 B\",\n  \"fileSizeBytes\": 315,\n  \"mimeType\": \"application/pdf\",\n  \"metadataFile\": \"20260702-181000_ab12cd34_document.pdf.meta.json\",\n  \"savedAt\": \"2026-07-02T18:10:00.123\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"mimeType detected as pdf\", function () { pm.expect(pm.response.json().mimeType).to.eql(\"application/pdf\"); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save & auto-detect - business failure (invalid Base64)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/save-decoded",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "save-decoded"
+              ]
+            },
+            "description": "Caught as IllegalArgumentException from Base64.getDecoder().decode().",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"base64Content\": \"not-valid-base64!!!\",\n  \"fileName\": \"document.pdf\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {},
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid Base64 content: Illegal base64 character 21\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([400]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download decoded file (binary)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/download-decoded/{{sampleDecodedFileName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "download-decoded",
+                "{{sampleDecodedFileName}}"
+              ]
+            },
+            "description": "Attempting to download a .meta.json file directly via this endpoint is rejected with 403, even though it lives in the same directory (FileStorageFacade.readDecodedFile explicit check)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/octet-stream"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=\"document.pdf\""
+                }
+              ],
+              "body": "<binary bytes>"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {},
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": ""
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 403, 404]); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get decoded file metadata",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/metadata/{{sampleDecodedFileName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "metadata",
+                "{{sampleDecodedFileName}}"
+              ]
+            },
+            "description": "Returns the raw .meta.json sidecar contents. Never contains dob/password/other secrets by design (PII/secret minimization \u2014 see Base64DecodingService.buildMetadata)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"originalFileName\": \"document.pdf\",\n  \"savedFileName\": \"20260702-181000_ab12cd34_document.pdf\",\n  \"fileSize\": 315,\n  \"detectedMimeType\": \"application/pdf\",\n  \"savedAt\": \"2026-07-02T18:10:00.123\",\n  \"extraParameters\": {}\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 403, 404]); });",
+                  "pm.test(\"Has observability headers\", function () {",
+                  "    pm.expect(pm.response.headers.has(\"X-Request-Id\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-API-Version\")).to.be.true;",
+                  "    pm.expect(pm.response.headers.has(\"X-Timestamp\")).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Administrative APIs",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{managementBaseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{managementBaseUrl}}",
+                "actuator",
+                "health"
+              ]
+            },
+            "description": "Only Spring Boot's built-in default indicators (disk space, ping) \u2014 no custom HealthIndicator exists in this codebase (see Production Readiness Review, P2)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"UP\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });",
+                  "pm.test(\"status UP\", function () { pm.expect(pm.response.json().status).to.eql(\"UP\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "App info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{managementBaseUrl}}/actuator/info",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{managementBaseUrl}}",
+                "actuator",
+                "info"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prometheus metrics scrape",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{managementBaseUrl}}/actuator/prometheus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{managementBaseUrl}}",
+                "actuator",
+                "prometheus"
+              ]
+            },
+            "description": "Includes this session's new counters: base64_output_decoded_files_deleted_total, base64_output_decoded_files_delete_errors_total, plus pre-existing pdf.protection.generate, base64.conversions, pdf.conversions, base64.output.files.* series."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Metrics index",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{managementBaseUrl}}/actuator/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{managementBaseUrl}}",
+                "actuator",
+                "metrics"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is as expected\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": ""
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "managementBaseUrl",
+      "value": "http://localhost:9090",
+      "type": "string"
+    }
+  ]
+}

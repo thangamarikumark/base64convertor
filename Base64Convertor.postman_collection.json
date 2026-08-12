@@ -1,0 +1,2098 @@
+{
+  "info": {
+    "_postman_id": "b64c-convertor-collection-v1",
+    "name": "Base64 Convertor API",
+    "description": "Complete API collection for the Base64 Convertor Spring Boot service. Import and set the {{baseUrl}} variable to your host (default: http://localhost:8080).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "actuatorUrl",
+      "value": "http://localhost:9090",
+      "type": "string"
+    },
+    {
+      "key": "processingId",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated by the Convert Single File request test script"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Test",
+      "item": [
+        {
+          "name": "Ping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/test/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "test",
+                "ping"
+              ]
+            },
+            "description": "Simple liveness check. Returns 200 with a plain text message."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/test/ping"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "body": "Pong! Service is alive."
+            }
+          ]
+        },
+        {
+          "name": "Echo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/plain"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "hello world"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/test/echo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "test",
+                "echo"
+              ]
+            },
+            "description": "Echoes any plain-text body back to the caller."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/test/echo"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "body": "Received: hello world"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Checksum",
+      "item": [
+        {
+          "name": "Generate Checksum (JSON body)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"hello\",\n  \"secretKey\": \"mysecret\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/checksum",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "checksum"
+              ]
+            },
+            "description": "Computes a CRC32 checksum of `message|secretKey` and returns a UUID nonce.\n\n**Required fields:** `message`, `secretKey`"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/checksum"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"checksum\": \"2346204756\",\n  \"nonce\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\"\n}"
+            },
+            {
+              "name": "400 Bad Request \u2013 missing fields",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/checksum"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"error\": \"message and secretKey cannot be empty\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Generate Checksum (Query Params)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/checksumgenerator?message=hello&secretKey=mysecret",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "checksumgenerator"
+              ],
+              "query": [
+                {
+                  "key": "message",
+                  "value": "hello"
+                },
+                {
+                  "key": "secretKey",
+                  "value": "mysecret"
+                }
+              ]
+            },
+            "description": "Same as the JSON body variant but accepts `message` and `secretKey` as query parameters."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/checksumgenerator?message=hello&secretKey=mysecret"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"checksum\": \"2346204756\",\n  \"nonce\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "File Convert",
+      "item": [
+        {
+          "name": "Convert Batch Files",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.length > 0 && body[0].processingId) {",
+                  "        pm.collectionVariables.set('processingId', body[0].processingId);",
+                  "        console.log('processingId saved:', body[0].processingId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"url\": \"https://www.w3.org/WAI/WCAG21/wcag21.pdf\",\n    \"fileName\": \"wcag21.pdf\",\n    \"mimeType\": \"application/pdf\",\n    \"type\": \"document\",\n    \"caption\": \"WCAG 2.1 Spec\"\n  },\n  {\n    \"url\": \"https://www.w3.org/WAI/WCAG21/wcag21.pdf\",\n    \"fileName\": \"wcag21_copy.pdf\",\n    \"mimeType\": \"application/pdf\",\n    \"type\": \"document\",\n    \"caption\": \"Second copy\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert"
+              ]
+            },
+            "description": "Converts a batch of files from their URLs to Base64.\n\n**Constraints:**\n- Array must not be empty\n- Max items controlled by `app.convert.max-batch-size` (default 50)\n- `url`, `mimeType`, `type` are required per item\n\n**Test script** auto-saves the first `processingId` to the collection variable."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"processingId\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"fileName\": \"wcag21.pdf\",\n    \"mimeType\": \"application/pdf\",\n    \"type\": \"document\",\n    \"base64Data\": \"JVBERi0xLjQKJ...\",\n    \"success\": true,\n    \"message\": \"File converted successfully\"\n  }\n]"
+            },
+            {
+              "name": "400 Bad Request \u2013 batch too large",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Convert Single File",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.processingId) {",
+                  "        pm.collectionVariables.set('processingId', body.processingId);",
+                  "        console.log('processingId saved:', body.processingId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.w3.org/WAI/WCAG21/wcag21.pdf\",\n  \"fileName\": \"wcag21.pdf\",\n  \"mimeType\": \"application/pdf\",\n  \"type\": \"document\",\n  \"caption\": \"WCAG 2.1 Specification\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/single",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "single"
+              ]
+            },
+            "description": "Converts a single file to Base64 synchronously.\n\n**Required fields:** `url`, `mimeType`, `type`\n**Optional:** `fileName`, `caption`\n\n**Test script** auto-saves the `processingId` to the collection variable."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert/single"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"processingId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"fileName\": \"wcag21.pdf\",\n  \"mimeType\": \"application/pdf\",\n  \"type\": \"document\",\n  \"base64Data\": \"JVBERi0xLjQKJ...\",\n  \"success\": true,\n  \"message\": \"File converted successfully\"\n}"
+            },
+            {
+              "name": "400 Bad Request \u2013 validation error",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert/single"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"timestamp\": \"2026-03-13T10:30:00\",\n  \"status\": 400,\n  \"errors\": [\"URL must not be empty\", \"mimeType is required\"]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Async Processing Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/status/{{processingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "status",
+                "{{processingId}}"
+              ]
+            },
+            "description": "Polls the result of an async file conversion.\n\n`{{processingId}}` is auto-set by the Convert Single File or Convert Batch test scripts.\n\n**Returns 404** if the ID is unknown or result has expired (after `file.cache.retention-hours`)."
+          },
+          "response": [
+            {
+              "name": "200 OK \u2013 completed",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/status/{{processingId}}"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"processingId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"fileName\": \"wcag21.pdf\",\n  \"mimeType\": \"application/pdf\",\n  \"type\": \"document\",\n  \"base64Data\": \"JVBERi0xLjQKJ...\",\n  \"success\": true,\n  \"message\": \"File converted successfully\"\n}"
+            },
+            {
+              "name": "404 Not Found \u2013 unknown or expired ID",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/status/unknown-id"
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PDF Convert",
+      "item": [
+        {
+          "name": "Convert to Base64 (Simple)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.w3.org/WAI/WCAG21/wcag21.pdf\",\n  \"cookie\": null,\n  \"payload\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/convert/base64",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "convert",
+                "base64"
+              ]
+            },
+            "description": "Downloads the file at `url` (via HTTP POST with optional cookie/payload) and returns Base64.\n\nAlso writes the Base64 to a `.b64` file on disk (path logged at INFO level).\n\n**Required:** `url`\n**Optional:** `cookie` (JSESSIONID value), `payload` (raw string body to POST to the URL)\n\n**Retry:** Up to `app.retry.max-attempts` times with exponential backoff on failure."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/convert/base64"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"fileName\": \"downloaded.pdf\",\n  \"status\": \"SUCCESS\",\n  \"base64\": \"JVBERi0xLjQKJ...\",\n  \"mimeType\": \"application/pdf\",\n  \"size\": 0\n}"
+            },
+            {
+              "name": "400 Bad Request \u2013 blank URL",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/convert/base64"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"status\": 400,\n  \"errors\": [\"URL must not be empty\"]\n}"
+            },
+            {
+              "name": "502 Bad Gateway \u2013 upstream error",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/convert/base64"
+                }
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"fileName\": \"downloaded.pdf\",\n  \"status\": \"FAILED: 404 Not Found\",\n  \"base64\": null,\n  \"mimeType\": \"application/pdf\",\n  \"size\": 0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Convert to Base64 (Dynamic \u2013 GET)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.w3.org/WAI/WCAG21/wcag21.pdf\",\n  \"httpMethod\": \"GET\",\n  \"cookie\": null,\n  \"authorization\": null,\n  \"payload\": {\n    \"headers\": {\n      \"Accept\": \"application/pdf\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/convert/base64dynamic",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "convert",
+                "base64dynamic"
+              ]
+            },
+            "description": "Advanced endpoint with full control over the outbound HTTP request.\n\n**Required:** `url`\n**Optional:**\n- `httpMethod` \u2014 `GET` or `POST` (default `POST`)\n- `cookie` \u2014 full Cookie header value\n- `authorization` \u2014 Authorization header value (Bearer token, Basic, etc.)\n- `payload` \u2014 JSON object; if it contains a `headers` key, those are merged into the outbound request headers; the rest of the payload is sent as the POST body\n\n**Auto-detects:**\n- MIME type from `Content-Type` response header (falls back to magic bytes)\n- File name from `Content-Disposition` header (falls back to URL path)\n\n**Validates:**\n- Magic bytes match declared MIME type\n- Response is not an HTML/JSON error page\n- File size \u2264 `app.pdf.stream-threshold-bytes`\n\n**Also writes .b64 file to disk.**"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/convert/base64dynamic"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"fileName\": \"wcag21.pdf\",\n  \"status\": \"SUCCESS\",\n  \"base64\": \"JVBERi0xLjQKJ...\",\n  \"mimeType\": \"application/pdf\",\n  \"size\": 1048576\n}"
+            },
+            {
+              "name": "200 OK \u2013 FILE_TOO_LARGE",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/convert/base64dynamic"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"fileName\": \"large.pdf\",\n  \"status\": \"FILE_TOO_LARGE\",\n  \"base64\": null,\n  \"mimeType\": \"application/pdf\",\n  \"size\": 52428800\n}"
+            }
+          ]
+        },
+        {
+          "name": "Convert to Base64 (Dynamic \u2013 POST with auth)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://internal.example.com/api/report/download\",\n  \"httpMethod\": \"POST\",\n  \"cookie\": \"JSESSIONID=abc123xyz\",\n  \"authorization\": \"Bearer eyJhbGciOiJIUzI1NiJ9...\",\n  \"payload\": {\n    \"headers\": {\n      \"X-Tenant-Id\": \"tenant-001\",\n      \"Accept\": \"application/pdf\"\n    },\n    \"reportId\": \"RPT-2026-001\",\n    \"format\": \"pdf\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/convert/base64dynamic",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "convert",
+                "base64dynamic"
+              ]
+            },
+            "description": "Same dynamic endpoint but demonstrating authenticated POST with custom headers and a body payload.\n\nThe `payload.headers` map is extracted and added as HTTP headers on the outbound request. All other payload keys are sent as the JSON POST body."
+          },
+          "response": []
+        },
+        {
+          "name": "PDF Send to Target (Batch)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"url\": \"https://www.w3.org/WAI/WCAG21/wcag21.pdf\",\n    \"cookie\": null,\n    \"payload\": null,\n    \"target_url\": \"https://messaging.example.com/api/v1/send\",\n    \"target_auth\": \"Bearer your-target-api-token\",\n    \"message\": {\n      \"channel\": \"WHATSAPP\",\n      \"content\": {\n        \"type\": \"ATTACHMENT\",\n        \"attachment\": {\n          \"type\": \"document\",\n          \"caption\": \"WCAG 2.1 Document\",\n          \"fileName\": \"wcag21.pdf\",\n          \"mimeType\": \"application/pdf\",\n          \"attachmentData\": null\n        }\n      },\n      \"recipient\": {\n        \"to\": \"+919876543210\",\n        \"recipient_type\": \"individual\",\n        \"reference\": {\n          \"refId\": \"\"\n        }\n      },\n      \"sender\": {\n        \"from\": \"+911234567890\"\n      },\n      \"preferences\": {\n        \"webHookDNId\": \"webhook-001\"\n      }\n    },\n    \"metaData\": {\n      \"version\": \"1.0\"\n    }\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "send"
+              ]
+            },
+            "description": "Downloads each file, converts to Base64, injects `attachmentData` into the message envelope, then POSTs the full message to `target_url`.\n\n**Flow:**\n1. Fetch file from `url` (with optional `cookie`/`payload`)\n2. Set `message.content.attachment.attachmentData = <base64>`\n3. POST envelope to `target_url` with `target_auth` header (falls back to `app.default.auth.token`)\n4. Returns result per file\n\n**`attachmentData` is cleared from the response** after forwarding (not echoed back)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/send"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"fileName\": \"wcag21.pdf\",\n    \"status\": \"SUCCESS\",\n    \"base64\": null,\n    \"mimeType\": \"application/pdf\",\n    \"size\": 0\n  }\n]"
+            },
+            {
+              "name": "200 OK \u2013 with failure entry",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/send"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"fileName\": \"wcag21.pdf\",\n    \"status\": \"FAILED: 401 Unauthorized\",\n    \"base64\": null,\n    \"mimeType\": null,\n    \"size\": 0\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "PDF Send to Target (Single)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.w3.org/WAI/WCAG21/wcag21.pdf\",\n  \"cookie\": null,\n  \"payload\": null,\n  \"target_url\": \"https://messaging.example.com/api/v1/send\",\n  \"target_auth\": \"Bearer your-target-api-token\",\n  \"message\": {\n    \"channel\": \"WHATSAPP\",\n    \"content\": {\n      \"type\": \"ATTACHMENT\",\n      \"attachment\": {\n        \"type\": \"document\",\n        \"caption\": \"WCAG 2.1 Document\",\n        \"fileName\": \"wcag21.pdf\",\n        \"mimeType\": \"application/pdf\",\n        \"attachmentData\": null\n      }\n    },\n    \"recipient\": {\n      \"to\": \"+919876543210\",\n      \"recipient_type\": \"individual\",\n      \"reference\": {\n        \"refId\": \"\"\n      }\n    },\n    \"sender\": {\n      \"from\": \"+911234567890\"\n    },\n    \"preferences\": {\n      \"webHookDNId\": \"webhook-001\"\n    }\n  },\n  \"metaData\": {\n    \"version\": \"1.0\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/single",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "single"
+              ]
+            },
+            "description": "Same as PDF Send (Batch) but accepts a single request object instead of an array.\n\nIf `target_url` is blank or null, the file is converted but NOT forwarded \u2014 only the Base64 response is returned."
+          },
+          "response": [
+            {
+              "name": "200 OK \u2013 forwarded",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/single"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"fileName\": \"wcag21.pdf\",\n  \"status\": \"SUCCESS\",\n  \"base64\": \"JVBERi0xLjQKJ...\",\n  \"mimeType\": \"application/pdf\",\n  \"size\": 0\n}"
+            },
+            {
+              "name": "502 Bad Gateway \u2013 target unreachable",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/single"
+                }
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"fileName\": \"unknown\",\n  \"status\": \"FAILED: Connection refused\",\n  \"base64\": null,\n  \"mimeType\": null,\n  \"size\": 0\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PDF Protection",
+      "item": [
+        {
+          "name": "Protect PDF - BASE64 response (default)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"password\": \"Welcome@123\",\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\",\n  \"responseType\": \"BASE64\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "Decodes `base64DocContent`, validates it is a genuine PDF (magic-byte check), optionally applies AES-256 password protection via Apache PDFBox, and returns the result inside the standard ApiResponse envelope.\n\n**Required:** `passwordProtected`, `base64DocContent`\n**Conditionally required:** `password` \u2014 mandatory only when `passwordProtected=true`\n**Optional:** `responseType` \u2014 `BASE64` (default, also what you get if this field is omitted entirely, for backward compatibility) or `ATTACHMENT`\n\n**Max size:** `pdf.protection.max-file-size-mb` (default 20MB decoded)\n\nEvery response (success or failure) carries `X-Request-Id`, `X-API-Version`, `X-Timestamp` headers, and `data.base64ProtectedPdf`'s `requestId` field in the body always matches the `X-Request-Id` header."
+          },
+          "response": [
+            {
+              "name": "200 OK - JSON with Base64",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/protect"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "{\n  \"status\": \"SUCCESS\",\n  \"message\": \"PDF generated successfully\",\n  \"data\": {\n    \"fileName\": \"protected_document.pdf\",\n    \"base64ProtectedPdf\": \"JVBERi0xLjQKJ...(truncated)...\"\n  },\n  \"timestamp\": \"2026-07-02T18:10:00.123456789Z\",\n  \"requestId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - ATTACHMENT response (binary download)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"password\": \"Welcome@123\",\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\",\n  \"responseType\": \"ATTACHMENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "Same endpoint, same request shape, only `responseType` differs \u2014 returns the protected PDF as a raw binary download (`application/pdf`, `Content-Disposition: attachment`) instead of a JSON envelope. Controller branches on `responseType`; the service layer itself stays transport-agnostic (always returns `byte[]`)."
+          },
+          "response": [
+            {
+              "name": "200 OK - binary PDF",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/protect"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/pdf"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=\"protected_document.pdf\""
+                },
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-07-02T18:10:00.123Z"
+                }
+              ],
+              "body": "<binary PDF bytes>"
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - validation failure (password missing)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "`password` is conditionally required \u2014 mandatory only when `passwordProtected=true`. This cross-field rule is enforced in the service layer (not bean validation), so it returns the ApiResponse error envelope, not Spring's default validation-failure shape."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/protect"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Password is mandatory when password protection is enabled\",\n  \"data\": null,\n  \"timestamp\": \"2026-07-02T18:10:00.123Z\",\n  \"requestId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - business failure (not a valid PDF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"dGhpcyBpcyBub3QgYSBwZGY=\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "`base64DocContent` decodes successfully but the decoded bytes don't start with the `%PDF` magic header, so Base64FileValidator rejects it as not a genuine PDF."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/protect"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Provided content is not a valid PDF document\",\n  \"data\": null,\n  \"timestamp\": \"2026-07-02T18:10:00.123Z\",\n  \"requestId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - invalid responseType value",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\",\n  \"responseType\": \"NOT_A_REAL_TYPE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "`responseType` only accepts `BASE64` or `ATTACHMENT`. An unrecognized value fails Jackson enum deserialization before the controller method even runs, and Spring's default handling for an unreadable request body returns 400 (verified live \u2014 this codebase has no global @ControllerAdvice, so this relies on Spring MVC's own default behavior, not custom code)."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request - unreadable enum value",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/protect"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Protect PDF - service disabled (503)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "protect"
+              ]
+            },
+            "description": "Only reproducible when `pdf.protection.enabled=false` (default `true`) \u2014 included for completeness of the documented failure surface, not runnable against a default-config instance."
+          },
+          "response": [
+            {
+              "name": "503 Service Unavailable",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/pdf/protect"
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"PDF protection is currently disabled\",\n  \"data\": null,\n  \"timestamp\": \"2026-07-02T18:10:00.123Z\",\n  \"requestId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bandhan PDF Protection",
+      "item": [
+        {
+          "name": "Protect Bandhan Statement - BASE64 response (default)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"password\": \"Welcome@123\",\n  \"base64DocContent\": \"<Base64-encoded PDF statement content>\",\n  \"responseType\": \"BASE64\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "bandhan",
+                "protect"
+              ]
+            },
+            "description": "Decodes `base64DocContent`, validates it is a genuine PDF (magic-byte check), best-effort extracts statement fields (`statementDate`, `totalAmountDue`, `minimumAmountDue`, `paymentDueDate`) from the document's text content, optionally applies AES-256 password protection via Apache PDFBox, and returns everything inside the standard ApiResponse envelope.\n\nSame request contract as `/pdf/protect` (see PDF Protection folder) — this is a sibling endpoint, not a divergent one.\n\n**Required:** `passwordProtected`, `base64DocContent`\n**Conditionally required:** `password` — mandatory only when `passwordProtected=true`\n**Optional:** `responseType` — `BASE64` (default) or `ATTACHMENT`\n\n**Statement field extraction is best-effort:** a field whose configured label (`pdf.bandhan.field-labels.*`) isn't found in the document text is returned as `null` — it never fails the request, since password protection is the primary responsibility. Labels are configurable via `application.properties`, so adding a new field (e.g. Customer Name) requires no code change.\n\n**Max size:** `pdf.protection.max-file-size-mb` (default 20MB decoded, shared with `/pdf/protect`)."
+          },
+          "response": [
+            {
+              "name": "200 OK - JSON with Base64 and extracted fields",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Request-Id",
+                  "value": "42064df8-dc6e-432b-8a80-779387a1eac2"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-08-07T10:30:38.275Z"
+                }
+              ],
+              "body": "{\n  \"status\": \"SUCCESS\",\n  \"message\": \"PDF generated successfully\",\n  \"data\": {\n    \"fileName\": \"protected_document.pdf\",\n    \"base64ProtectedPdf\": \"JVBERi0xLjYKJ...(truncated)...\",\n    \"statementDate\": \"June 15, 2026\",\n    \"totalAmountDue\": \"12,345.00\",\n    \"minimumAmountDue\": \"1,200.00\",\n    \"paymentDueDate\": \"July 5, 2026\"\n  },\n  \"timestamp\": \"2026-08-07T10:30:38.275023626Z\",\n  \"requestId\": \"42064df8-dc6e-432b-8a80-779387a1eac2\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Protect Bandhan Statement - ATTACHMENT response (binary download)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"password\": \"Welcome@123\",\n  \"base64DocContent\": \"<Base64-encoded PDF statement content>\",\n  \"responseType\": \"ATTACHMENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "bandhan",
+                "protect"
+              ]
+            },
+            "description": "Same endpoint, same request shape, only `responseType` differs — returns the protected PDF as a raw binary download (`application/pdf`, `Content-Disposition: attachment`) instead of a JSON envelope.\n\n**Note:** the extracted statement fields (`statementDate`, `totalAmountDue`, `minimumAmountDue`, `paymentDueDate`) are only carried in the JSON/BASE64 response shape — there is no channel to include them in a raw binary body, so ATTACHMENT mode returns just the protected PDF bytes, same as `/pdf/protect`."
+          },
+          "response": [
+            {
+              "name": "200 OK - binary PDF",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/pdf"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=\"protected_document.pdf\""
+                },
+                {
+                  "key": "X-Request-Id",
+                  "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                },
+                {
+                  "key": "X-API-Version",
+                  "value": "1.0.0"
+                },
+                {
+                  "key": "X-Timestamp",
+                  "value": "2026-08-07T10:30:38.275Z"
+                }
+              ],
+              "body": "<binary PDF bytes>"
+            }
+          ]
+        },
+        {
+          "name": "Protect Bandhan Statement - fields not found (best-effort null)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "bandhan",
+                "protect"
+              ]
+            },
+            "description": "Demonstrates the best-effort contract: this is a genuine, valid PDF (passes the magic-byte check) but its page has no text content stream, so none of the four configured labels (`Statement Date`, `Total Amount Due`, `Minimum Amount Due`, `Payment Due Date`) can be found. The request still succeeds — the PDF is returned/protected normally — and every extracted field is individually `null` rather than the whole call failing."
+          },
+          "response": [
+            {
+              "name": "200 OK - all fields null",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"SUCCESS\",\n  \"message\": \"PDF generated successfully\",\n  \"data\": {\n    \"fileName\": \"protected_document.pdf\",\n    \"base64ProtectedPdf\": \"JVBERi0xLjQKJ...(truncated)...\",\n    \"statementDate\": null,\n    \"totalAmountDue\": null,\n    \"minimumAmountDue\": null,\n    \"paymentDueDate\": null\n  },\n  \"timestamp\": \"2026-08-07T10:31:13.844166992Z\",\n  \"requestId\": \"59fa719a-08a6-4599-bf57-3dac790eac8c\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Protect Bandhan Statement - validation failure (password missing)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": true,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "bandhan",
+                "protect"
+              ]
+            },
+            "description": "`password` is conditionally required — mandatory only when `passwordProtected=true`. Same cross-field rule and same 400 ApiResponse error envelope as `/pdf/protect` (enforced in the service layer, not bean validation)."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Password is mandatory when password protection is enabled\",\n  \"data\": null,\n  \"timestamp\": \"2026-08-07T10:30:00.123Z\",\n  \"requestId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Protect Bandhan Statement - business failure (not a valid PDF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"dGhpcyBpcyBub3QgYSBwZGY=\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "bandhan",
+                "protect"
+              ]
+            },
+            "description": "`base64DocContent` decodes successfully but the decoded bytes don't start with the `%PDF` magic header, so `Base64FileValidator` (reused, not duplicated) rejects it as not a genuine PDF."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Provided content is not a valid PDF document\",\n  \"data\": null,\n  \"timestamp\": \"2026-08-07T10:30:00.123Z\",\n  \"requestId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Protect Bandhan Statement - service disabled (503)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordProtected\": false,\n  \"base64DocContent\": \"JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXT4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTkwCiUlRU9G\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "pdf",
+                "bandhan",
+                "protect"
+              ]
+            },
+            "description": "Reuses `pdf.protection.enabled` — the same kill-switch as `/pdf/protect`, since both endpoints share `PdfProtectionProperties`. Only reproducible when `pdf.protection.enabled=false` (default `true`) — included for completeness of the documented failure surface, not runnable against a default-config instance."
+          },
+          "response": [
+            {
+              "name": "503 Service Unavailable",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/convert/pdf/bandhan/protect"
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"PDF protection is currently disabled\",\n  \"data\": null,\n  \"timestamp\": \"2026-08-07T10:30:00.123Z\",\n  \"requestId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "File Retrieval & Management",
+      "item": [
+        {
+          "name": "Save Base64 File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"base64Content\": \"JVBERi0xLjQKJeLjz9MNCjEgMCBvYmo...\",\n  \"fileName\": \"invoice.pdf\",\n  \"fileType\": \"pdf\",\n  \"description\": \"Monthly invoice for client\",\n  \"userId\": \"user123\",\n  \"companyId\": \"company456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/save",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "save"
+              ]
+            },
+            "description": "Save Base64 content to a file and receive the download link. Required fields: base64Content, fileName. Optional: fileType, description, and any extra custom parameters. Response includes filename, download link, file size, and saved timestamp."
+          },
+          "response": [
+            {
+              "name": "200 OK \u2013 File saved successfully",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/save"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"File saved successfully\",\n  \"fileName\": \"20240115-143022_abc12345_invoice.pdf.b64\",\n  \"downloadLink\": \"http://localhost:8080/api/files/download/20240115-143022_abc12345_invoice.pdf.b64\",\n  \"fileSize\": \"2.45 MB\",\n  \"savedAt\": \"2024-01-15T14:30:22.123456\"\n}"
+            },
+            {
+              "name": "400 Bad Request \u2013 Missing required field",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/save"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"timestamp\": \"2024-01-15T14:30:22\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"errors\": [\"base64Content is required\", \"fileName is required\"]\n}"
+            },
+            {
+              "name": "500 Internal Server Error \u2013 File write failure",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/save"
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Error saving file: Access denied to output directory\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "List All Base64 Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "list"
+              ]
+            },
+            "description": "List all .b64 files in the configured output directory. Returns file name, size (in bytes), and last modified timestamp for each file."
+          },
+          "response": [
+            {
+              "name": "200 OK \u2013 Files found",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/list"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"fileName\": \"20240115-143022_abc12345_invoice.pdf.b64\",\n    \"size\": 2567890,\n    \"lastModified\": \"2024-01-15T14:30:22Z\"\n  },\n  {\n    \"fileName\": \"20240115-142500_xyz98765_report.pdf.b64\",\n    \"size\": 1234567,\n    \"lastModified\": \"2024-01-15T14:25:00Z\"\n  },\n  {\n    \"fileName\": \"20240114-101530_def45678_contract.pdf.b64\",\n    \"size\": 3456789,\n    \"lastModified\": \"2024-01-14T10:15:30Z\"\n  }\n]"
+            },
+            {
+              "name": "200 OK \u2013 No files found",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/list"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[]"
+            },
+            {
+              "name": "500 Internal Server Error \u2013 Directory read failure",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/list"
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Download Base64 File",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/download/20240115-143022_abc12345_invoice.pdf.b64",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "download",
+                "20240115-143022_abc12345_invoice.pdf.b64"
+              ]
+            },
+            "description": "Download a specific .b64 file by its filename. Returns the Base64 content as plain text with Content-Disposition header for file download. Security: Prevents directory traversal attacks and only allows .b64 files."
+          },
+          "response": [
+            {
+              "name": "200 OK \u2013 File downloaded",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/download/20240115-143022_abc12345_invoice.pdf.b64"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=20240115-143022_abc12345_invoice.pdf.b64"
+                }
+              ],
+              "body": "JVBERi0xLjQKJeLjz9MNCjEgMCBvYmoKPDwKL1R5cGUgL0NhdGFsb2cKL1BhZ2VzIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9UeXBlIC9QYWdlcwovS2lkcyBbMyAwIFJdCi9Db3VudCAxCj4+CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9QYWdlCi9QYXJlbnQgMiAwIFIKL1Jlc291cmNlcyA0IDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0ZvbnQgPDwKL0YxIDYgMCBSCj4+Cj4+CmVuZG9iagp1c3RhcnR4cmVmCjU1CiUlRU9GCg=="
+            },
+            {
+              "name": "404 Not Found \u2013 File does not exist",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/download/nonexistent.b64"
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            },
+            {
+              "name": "403 Forbidden \u2013 Attempt to access non-.b64 file",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/download/../../etc/passwd"
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            },
+            {
+              "name": "500 Internal Server Error \u2013 File read failure",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/download/20240115-143022_abc12345_invoice.pdf.b64"
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Get File Content",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/content/20240115-143022_abc12345_invoice.pdf.b64",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "content",
+                "20240115-143022_abc12345_invoice.pdf.b64"
+              ]
+            },
+            "description": "Get the Base64 content of a specific file without downloading it as an attachment. Returns plain text Base64 string (same as /download but without attachment header). Security: Same directory traversal and file type protections as download endpoint."
+          },
+          "response": [
+            {
+              "name": "200 OK \u2013 Content retrieved",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/content/20240115-143022_abc12345_invoice.pdf.b64"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "JVBERi0xLjQKJeLjz9MNCjEgMCBvYmoKPDwKL1R5cGUgL0NhdGFsb2cKL1BhZ2VzIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9UeXBlIC9QYWdlcwovS2lkcyBbMyAwIFJdCi9Db3VudCAxCj4+CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9QYWdlCi9QYXJlbnQgMiAwIFIKL1Jlc291cmNlcyA0IDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0ZvbnQgPDwKL0YxIDYgMCBSCj4+Cj4+CmVuZG9iagp1c3RhcnR4cmVmCjU1CiUlRU9GCg=="
+            },
+            {
+              "name": "404 Not Found \u2013 File does not exist",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/content/nonexistent.b64"
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            },
+            {
+              "name": "403 Forbidden \u2013 Invalid file type",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/content/../../etc/config.txt"
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            },
+            {
+              "name": "500 Internal Server Error \u2013 Read failure",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/content/20240115-143022_abc12345_invoice.pdf.b64"
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Delete Base64 File",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/convert/20240115-143022_abc12345_invoice.pdf.b64",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "convert",
+                "20240115-143022_abc12345_invoice.pdf.b64"
+              ]
+            },
+            "description": "Delete a specific .b64 file by its filename. Security: Prevents directory traversal attacks and only allows deletion of .b64 files."
+          },
+          "response": [
+            {
+              "name": "200 OK \u2013 File deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/20240115-143022_abc12345_invoice.pdf.b64"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "body": "File deleted successfully"
+            },
+            {
+              "name": "404 Not Found \u2013 File does not exist",
+              "originalRequest": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/nonexistent.b64"
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            },
+            {
+              "name": "403 Forbidden \u2013 Attempt to delete non-.b64 file",
+              "originalRequest": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/../../etc/passwd"
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            },
+            {
+              "name": "500 Internal Server Error \u2013 Deletion failure",
+              "originalRequest": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/api/files/20240115-143022_abc12345_invoice.pdf.b64"
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "text",
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Actuator & Monitoring",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{actuatorUrl}}/actuator/health",
+              "host": [
+                "{{actuatorUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            },
+            "description": "Spring Boot Actuator health endpoint. Returns component-level health.\n\nRuns on port 9090 (set by `management.server.port`)."
+          },
+          "response": [
+            {
+              "name": "200 UP",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{actuatorUrl}}/actuator/health"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"status\": \"UP\",\n  \"components\": {\n    \"diskSpace\": { \"status\": \"UP\" },\n    \"ping\": { \"status\": \"UP\" }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Prometheus Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{actuatorUrl}}/actuator/prometheus",
+              "host": [
+                "{{actuatorUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "prometheus"
+              ]
+            },
+            "description": "Prometheus scrape endpoint. Returns all metrics in text exposition format.\n\nKey custom metrics:\n- `base64_conversions_total{status=\"success\"|\"failure\"}`\n- `base64_conversion_duration_seconds`\n- `pdf_conversions_total{status=\"success\"|\"failure\"}`\n- `pdf_conversion_duration_seconds`\n- `base64_output_files_written_total`\n- `base64_output_files_deleted_total`\n- `base64_output_files_errors_total`"
+          },
+          "response": []
+        },
+        {
+          "name": "All Metrics (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{actuatorUrl}}/actuator/metrics",
+              "host": [
+                "{{actuatorUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "metrics"
+              ]
+            },
+            "description": "Lists all available metric names in JSON. Use the individual metric name endpoint to drill down."
+          },
+          "response": []
+        },
+        {
+          "name": "PDF Conversion Counter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{actuatorUrl}}/actuator/metrics/pdf.conversions",
+              "host": [
+                "{{actuatorUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "metrics",
+                "pdf.conversions"
+              ]
+            },
+            "description": "Shows the total count of PDF conversions, tagged by `status=success` or `status=failure`."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{actuatorUrl}}/actuator/metrics/pdf.conversions"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"name\": \"pdf.conversions\",\n  \"measurements\": [\n    { \"statistic\": \"COUNT\", \"value\": 42.0 }\n  ],\n  \"availableTags\": [\n    { \"tag\": \"status\", \"values\": [\"success\", \"failure\"] }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Base64 File Output Counter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{actuatorUrl}}/actuator/metrics/base64.output.files.written",
+              "host": [
+                "{{actuatorUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "metrics",
+                "base64.output.files.written"
+              ]
+            },
+            "description": "Total number of `.b64` output files written to disk since the service started."
+          },
+          "response": []
+        },
+        {
+          "name": "App Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{actuatorUrl}}/actuator/info",
+              "host": [
+                "{{actuatorUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "info"
+              ]
+            },
+            "description": "Returns application info (name, version, description from pom.xml if configured)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

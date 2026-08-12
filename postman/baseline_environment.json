@@ -1,0 +1,10 @@
+{
+  "id": "b64convertor-baseline-env",
+  "name": "Base64Convertor Baseline",
+  "values": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "default", "enabled": true },
+    { "key": "managementUrl", "value": "http://localhost:9090", "type": "default", "enabled": true }
+  ],
+  "_postman_variable_scope": "environment",
+  "_note": "Copied/created as the Phase 0 regression baseline. baseline_collection.json is an unmodified copy of the pre-existing Base64Convertor.postman_collection.json at the repo root, captured before any Phase A refactoring so it can be diffed post-refactor to prove the collection still works unmodified."
+}
