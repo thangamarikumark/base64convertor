@@ -261,7 +261,7 @@ Format: **Current State → Proposed State → Risk Level → Files Impacted →
 - **Current State:** CRC32 computation is a private controller method; request DTO is an inline static nested class; response is an ad-hoc `Map<String,String>` built in two places.
 - **Proposed State:** `ChecksumService.compute(message, secretKey)` returns a typed `ChecksumResponse`; `ChecksumRequest` promoted to a top-level DTO.
 - **Risk Level:** Low.
-- **Files Impacted:** New: `ChecksumService.java`, `ChecksumRequest.java`, `ChecksumResponse.java`. Modified: `ChecksumController.java` (now calls the service; the 400 empty-field validation path is unchanged).
+- **Files Impacted:** New: `QrDecoderService.java`, `PaymentQrResponse.java`, `ChecksumResponse.java`. Modified: `PaymentController.java` (now calls the service; the 400 empty-field validation path is unchanged).
 - **Why Behavior Remains Unchanged:** CRC32 algorithm, `message + "|" + secretKey"` concatenation, UTF-8 encoding, and `UUID.randomUUID()` nonce generation are copied verbatim. A `@Data` POJO with fields `checksum`/`nonce` serializes to the identical two-key JSON object Jackson already produces from `Map.of(...)`.
 
 ---

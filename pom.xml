@@ -172,6 +172,18 @@
             <version>3.5.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
         <!-- Spring Boot test starter (test scope only) - brings Mockito and Spring's
              MockHttpServletRequest/Response, needed to unit-test RequestCorrelationFilter
              against real servlet request/response objects instead of hand-rolled fakes. -->

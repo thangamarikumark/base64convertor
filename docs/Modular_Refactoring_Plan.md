@@ -288,7 +288,7 @@ For each numbered smell above, here is the concrete refactor with the required *
 
 **B. Proposed Module:** `checksum.service.ChecksumService` + `checksum.dto.ChecksumRequest`/`ChecksumResponse`.
 
-**C. Classes To Create:** `ChecksumService.java` (method: `ChecksumResponse compute(String message, String secretKey)`, containing the exact same `CRC32`/UTF-8/`message + "|" + secretKey` logic), `checksum.dto.ChecksumRequest.java` (promoted from the inline nested class, identical fields/getters/setters), `checksum.dto.ChecksumResponse.java` (fields: `checksum`, `nonce` — must serialize to the exact same two-key JSON object).
+**C. Classes To Create:** `QrDecoderService.java` (method: `ChecksumResponse compute(String message, String secretKey)`, containing the exact same `CRC32`/UTF-8/`message + "|" + secretKey` logic), `checksum.dto.ChecksumRequest.java` (promoted from the inline nested class, identical fields/getters/setters), `checksum.dto.ChecksumResponse.java` (fields: `checksum`, `nonce` — must serialize to the exact same two-key JSON object).
 
 **D. Classes To Modify:** `ChecksumController` — both endpoint methods now call `checksumService.compute(...)` and return `ResponseEntity.ok(response)` instead of building the map inline; the 400 error path (`Map.of("error", ...)`) is kept as-is in the controller (or promoted to a matching `ChecksumErrorResponse` — optional, only if you want full DTO typing on the error path too).
 
